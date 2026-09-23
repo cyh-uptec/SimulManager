@@ -29,3 +29,6 @@ SimulManager/**/obj/
 # ── 로컬 도구 설정·작업 스크린샷 ──
 .claude/settings.local.json
 이미지/
+
+# ── Obsidian 볼트 로컬 설정 (docs/시뮬매니저/ 등) ──
+.obsidian/
