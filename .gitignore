@@ -1,0 +1,31 @@
+# ── Python (backend / emulators) ──
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+
+# ── Frontend ──
+node_modules/
+frontend/dist/
+frontend/tsconfig.tsbuildinfo
+
+# ── 런타임 데이터 (PC별 산출물 — 저장소에 올리지 않음) ──
+data/historian.db
+data/historian.db-shm
+data/historian.db-wal
+data/uploads/
+data/persisted_soc.json
+backend/config/user_settings.yaml
+
+# ── WPF 포팅판 (SimulManager/) — 빌드 산출물·NuGet 패키지(DevExpress·SciChart 상용 DLL 포함) ──
+SimulManager/.vs/
+SimulManager/packages/
+SimulManager/**/bin/
+SimulManager/**/obj/
+*.user
+*.suo
+
+# ── 로컬 도구 설정·작업 스크린샷 ──
+.claude/settings.local.json
+이미지/

@@ -1,0 +1,92 @@
+<UserControl x:Class="SimulManager.Views.MonitorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:s="http://schemas.abtsoftware.co.uk/scichart">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Background="{StaticResource BgBrush}">
+        <StackPanel Margin="28,26">
+
+            <!-- topbar -->
+            <Grid Margin="0,0,0,14">
+                <TextBlock Text="모니터링" Style="{StaticResource PageTitle}" HorizontalAlignment="Left"
+                           VerticalAlignment="Center" />
+                <ComboBox Style="{StaticResource InputCombo}" MinWidth="320" HorizontalAlignment="Right"
+                          ItemsSource="{Binding Runs}" DisplayMemberPath="Display"
+                          SelectedItem="{Binding SelectedRun, Mode=TwoWay}" />
+            </Grid>
+
+            <!-- run summary -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,14"
+                        Visibility="{Binding HasSummary, Converter={StaticResource BoolToVis}}">
+                <Border Style="{StaticResource Badge}" Margin="0,0,10,0">
+                    <TextBlock Text="{Binding SummaryBadge}" Style="{StaticResource BadgeText}" />
+                </Border>
+                <TextBlock Text="{Binding SummaryText}" Style="{StaticResource Muted}" VerticalAlignment="Center" />
+            </StackPanel>
+
+            <!-- 전력 차트 -->
+            <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="전력 [kW] — ESS 충방전(+방전/−충전) · PCC 수전/역송"
+                               Style="{StaticResource Label}" FontSize="13" Margin="0,0,0,10" />
+                    <TextBlock Text="계측 데이터가 없습니다 — Run을 시작하면 RTDS 1분 계측이 적재됩니다."
+                               Style="{StaticResource Muted}" TextAlignment="Center" Padding="0,40"
+                               Visibility="{Binding ChartEmpty, Converter={StaticResource BoolToVis}}" />
+                    <s:SciChartSurface Height="280" s:ThemeManager.Theme="BrightSpark" BorderThickness="0">
+                        <s:SciChartSurface.RenderableSeries>
+                            <s:FastLineRenderableSeries DataSeries="{Binding EssSeries}"
+                                                        Stroke="#6366F1" StrokeThickness="2" />
+                            <s:FastLineRenderableSeries DataSeries="{Binding ImportSeries}"
+                                                        Stroke="#F26D6D" StrokeThickness="2" />
+                            <s:FastLineRenderableSeries DataSeries="{Binding ExportSeries}"
+                                                        Stroke="#2EC5B6" StrokeThickness="2" />
+                        </s:SciChartSurface.RenderableSeries>
+                        <s:SciChartSurface.XAxis>
+                            <s:DateTimeAxis DrawMajorGridLines="True" DrawMinorGridLines="False"
+                                            TextFormatting="MM-dd HH:mm" />
+                        </s:SciChartSurface.XAxis>
+                        <s:SciChartSurface.YAxis>
+                            <s:NumericAxis GrowBy="0.05,0.05" DrawMajorGridLines="True" DrawMinorGridLines="False" />
+                        </s:SciChartSurface.YAxis>
+                        <s:SciChartSurface.ChartModifier>
+                            <s:ModifierGroup>
+                                <s:LegendModifier ShowLegend="True" Orientation="Horizontal"
+                                                  LegendPlacement="Inside" Margin="6" />
+                                <s:RolloverModifier ShowTooltipOn="MouseHover" />
+                            </s:ModifierGroup>
+                        </s:SciChartSurface.ChartModifier>
+                    </s:SciChartSurface>
+                </StackPanel>
+            </Border>
+
+            <!-- SOC 차트 -->
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="SOC [%]" Style="{StaticResource Label}" FontSize="13" Margin="0,0,0,10" />
+                    <TextBlock Text="데이터 없음" Style="{StaticResource Muted}" TextAlignment="Center" Padding="0,40"
+                               Visibility="{Binding ChartEmpty, Converter={StaticResource BoolToVis}}" />
+                    <s:SciChartSurface Height="200" s:ThemeManager.Theme="BrightSpark" BorderThickness="0">
+                        <s:SciChartSurface.RenderableSeries>
+                            <s:FastLineRenderableSeries DataSeries="{Binding SocSeries}"
+                                                        Stroke="#38BDF8" StrokeThickness="2" />
+                        </s:SciChartSurface.RenderableSeries>
+                        <s:SciChartSurface.XAxis>
+                            <s:DateTimeAxis DrawMajorGridLines="True" DrawMinorGridLines="False"
+                                            TextFormatting="MM-dd HH:mm" />
+                        </s:SciChartSurface.XAxis>
+                        <s:SciChartSurface.YAxis>
+                            <s:NumericAxis VisibleRange="0,100" AutoRange="Never"
+                                           DrawMajorGridLines="True" DrawMinorGridLines="False" />
+                        </s:SciChartSurface.YAxis>
+                        <s:SciChartSurface.ChartModifier>
+                            <s:RolloverModifier ShowTooltipOn="MouseHover" />
+                        </s:SciChartSurface.ChartModifier>
+                    </s:SciChartSurface>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

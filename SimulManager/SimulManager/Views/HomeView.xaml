@@ -1,0 +1,367 @@
+<UserControl x:Class="SimulManager.Views.HomeView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ctrl="clr-namespace:SimulManager.Controls"
+             xmlns:vm="clr-namespace:SimulManager.ViewModels">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+
+        <!-- 링크 신호 비트 필 (.bit) -->
+        <DataTemplate x:Key="BitPill" DataType="{x:Type vm:BitItem}">
+            <Border CornerRadius="999" Padding="10,4" Margin="0,0,6,6">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Background" Value="{StaticResource ChipBrush}" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsOn}" Value="True">
+                                <Setter Property="Background" Value="{StaticResource TealSoftBrush}" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <StackPanel Orientation="Horizontal">
+                    <Ellipse Width="7" Height="7" VerticalAlignment="Center" Margin="0,0,6,0">
+                        <Ellipse.Style>
+                            <Style TargetType="Ellipse">
+                                <Setter Property="Fill" Value="#C3C9D8" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsOn}" Value="True">
+                                        <Setter Property="Fill" Value="{StaticResource TealBrush}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Ellipse.Style>
+                    </Ellipse>
+                    <TextBlock Text="{Binding Label}" FontSize="11.5" FontWeight="SemiBold">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="{StaticResource MutedBrush}" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsOn}" Value="True">
+                                        <Setter Property="Foreground" Value="{StaticResource TealTextBrush}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+
+        <!-- 계측 메타 (.meta — 좌측 액센트 보더) -->
+        <Style x:Key="MetaBorder" TargetType="Border">
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+            <Setter Property="BorderThickness" Value="3,0,0,0" />
+            <Setter Property="Padding" Value="10,0,0,0" />
+            <Setter Property="Margin" Value="0,0,12,8" />
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Background="{StaticResource BgBrush}">
+        <StackPanel Margin="28,26">
+
+            <!-- ── topbar ── -->
+            <Grid Margin="0,0,0,22">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                    <Image x:Name="CorpLogo" Height="30" Margin="0,0,14,0" VerticalAlignment="Center"
+                           Visibility="Collapsed" />
+                    <TextBlock Text="운전 현황" Style="{StaticResource PageTitle}" VerticalAlignment="Center" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <Border Style="{StaticResource Badge}" Background="{StaticResource IndigoSoftBrush}"
+                            Margin="0,0,8,0"
+                            Visibility="{Binding HasRunBadge, Converter={StaticResource BoolToVis}}">
+                        <TextBlock Text="{Binding RunBadgeText}" Style="{StaticResource BadgeText}"
+                                   Foreground="{StaticResource IndigoBrush}" />
+                    </Border>
+                    <Border Style="{StaticResource Badge}" Background="{Binding StateBadgeBg}" Margin="0,0,8,0">
+                        <TextBlock Text="{Binding StateLabel}" Style="{StaticResource BadgeText}"
+                                   Foreground="{Binding StateBadgeFg}" />
+                    </Border>
+                    <Button Content="⚙ 설정" Style="{StaticResource BtnSmall}"
+                            Command="{Binding OpenSettingsCommand}" />
+                </StackPanel>
+            </Grid>
+
+            <!-- ── stat-grid (5칸) ── -->
+            <UniformGrid Columns="5" Margin="0,0,0,16">
+                <Border Style="{StaticResource StatCard}" Margin="0,0,14,0">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <Border Width="26" Height="26" CornerRadius="8" Background="{StaticResource IndigoSoftBrush}">
+                                <TextBlock Text="🕐" FontSize="13" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <TextBlock Text="가상 시각" Style="{StaticResource Label}" FontSize="12.5"
+                                       VerticalAlignment="Center" Margin="8,0,0,0" />
+                        </StackPanel>
+                        <TextBlock Text="{Binding TimeText}" FontSize="32" FontWeight="ExtraBold"
+                                   Foreground="{StaticResource GradMainBrush}" />
+                        <TextBlock Text="{Binding DateText}" Style="{StaticResource Muted}" FontSize="11.5" />
+                        <Grid Margin="0,8,0,0">
+                            <Border Height="6" CornerRadius="3" Background="{StaticResource TrackBrush}" />
+                            <Border Height="6" CornerRadius="3" Background="{StaticResource GradBarBrush}"
+                                    HorizontalAlignment="Left">
+                                <Border.Width>
+                                    <MultiBinding Converter="{x:Static vm:PctWidthConverter.Instance}">
+                                        <Binding Path="ProgressPct" />
+                                        <Binding Path="ActualWidth" RelativeSource="{RelativeSource AncestorType=Grid}" />
+                                    </MultiBinding>
+                                </Border.Width>
+                            </Border>
+                        </Grid>
+                        <TextBlock Text="{Binding ProgressText}" Style="{StaticResource Muted}"
+                                   FontSize="11.5" Margin="0,3,0,0" />
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource StatCard}" Margin="0,0,14,0">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <Border Width="26" Height="26" CornerRadius="8" Background="{StaticResource IndigoSoftBrush}">
+                                <TextBlock Text="⏱" FontSize="13" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <TextBlock Text="구간 인덱스" Style="{StaticResource Label}" FontSize="12.5"
+                                       VerticalAlignment="Center" Margin="8,0,0,0" />
+                        </StackPanel>
+                        <ctrl:DonutControl Width="104" Height="104" HorizontalAlignment="Center"
+                                           Value="{Binding IntervalIndex}" Maximum="95"
+                                           RingBrush="{StaticResource IndigoBrush}"
+                                           CenterText="{Binding IntervalText}" SubText="/ 95" />
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource StatCard}" Margin="0,0,14,0">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <Border Width="26" Height="26" CornerRadius="8" Background="{StaticResource IndigoSoftBrush}">
+                                <TextBlock Text="📅" FontSize="13" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <TextBlock Text="일차" Style="{StaticResource Label}" FontSize="12.5"
+                                       VerticalAlignment="Center" Margin="8,0,0,0" />
+                        </StackPanel>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="{Binding DayText}" FontSize="27" FontWeight="ExtraBold"
+                                       Foreground="{StaticResource TextBrush}" />
+                            <TextBlock Text="{Binding DaySubText}" Style="{StaticResource Muted}" FontSize="11.5" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource StatCard}" Margin="0,0,14,0">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <Border Width="26" Height="26" CornerRadius="8" Background="{StaticResource IndigoSoftBrush}">
+                                <TextBlock Text="⚡" FontSize="13" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <TextBlock Text="가속 배율" Style="{StaticResource Label}" FontSize="12.5"
+                                       VerticalAlignment="Center" Margin="8,0,0,0" />
+                        </StackPanel>
+                        <TextBlock Text="{Binding AccelText}" FontSize="27" FontWeight="ExtraBold"
+                                   Foreground="{StaticResource TextBrush}" />
+                        <TextBlock Text="{Binding AccelSubText}" Style="{StaticResource Muted}" FontSize="11.5" />
+                        <TextBlock Text="{Binding TickSubText}" Style="{StaticResource Muted}" FontSize="11.5" />
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource StatCard}">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <Border Width="26" Height="26" CornerRadius="8" Background="{StaticResource IndigoSoftBrush}">
+                                <TextBlock Text="🔌" FontSize="13" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <TextBlock Text="단절 누적" Style="{StaticResource Label}" FontSize="12.5"
+                                       VerticalAlignment="Center" Margin="8,0,0,0" />
+                        </StackPanel>
+                        <ctrl:DonutControl Width="104" Height="104" HorizontalAlignment="Center"
+                                           Value="{Binding Disconnects}" Maximum="{Binding DisconnectBudget}"
+                                           RingBrush="{Binding DisconnectBrush}"
+                                           CenterText="{Binding DisconnectText}" SubText="{Binding DisconnectSub}" />
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <!-- ── 노드 카드 (EMS·RTDS) ── -->
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="16" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- EMS -->
+                <Border Grid.Column="0" Style="{StaticResource Card}" Padding="0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="3" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Border Grid.Row="0" Background="{Binding EmsTopBrush}" CornerRadius="16,16,0,0" />
+                        <StackPanel Grid.Row="1" Margin="20,15,20,18">
+                            <Grid Margin="0,0,0,12">
+                                <TextBlock Text="EMS" FontSize="17" FontWeight="Bold"
+                                           Foreground="{StaticResource TextBrush}" HorizontalAlignment="Left" />
+                                <Border Style="{StaticResource Badge}" Background="{Binding EmsBadgeBg}"
+                                        HorizontalAlignment="Right">
+                                    <TextBlock Text="{Binding EmsStateLabel}" Style="{StaticResource BadgeText}"
+                                               Foreground="{Binding EmsBadgeFg}" />
+                                </Border>
+                            </Grid>
+                            <UniformGrid Columns="2">
+                                <Border Style="{StaticResource MetaBorder}">
+                                    <StackPanel>
+                                        <TextBlock Text="Heartbeat" Style="{StaticResource Label}" />
+                                        <TextBlock Text="{Binding EmsHeartbeat}" Style="{StaticResource ValueText}" />
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource MetaBorder}">
+                                    <StackPanel>
+                                        <TextBlock Text="마지막 갱신" Style="{StaticResource Label}" />
+                                        <TextBlock Text="{Binding EmsAge}" Style="{StaticResource ValueText}" />
+                                    </StackPanel>
+                                </Border>
+                            </UniformGrid>
+                            <TextBlock Text="EMS가 읽는 지령 (①Coil)" Style="{StaticResource Label}"
+                                       Margin="0,14,0,6" />
+                            <WrapPanel>
+                                <ContentControl Content="{Binding BitRunStart}" ContentTemplate="{StaticResource BitPill}" />
+                                <ContentControl Content="{Binding BitRtdsReady}" ContentTemplate="{StaticResource BitPill}" />
+                                <ContentControl Content="{Binding BitEmsEnable}" ContentTemplate="{StaticResource BitPill}" />
+                            </WrapPanel>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- RTDS -->
+                <Border Grid.Column="2" Style="{StaticResource Card}" Padding="0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="3" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Border Grid.Row="0" Background="{Binding RtdsTopBrush}" CornerRadius="16,16,0,0" />
+                        <StackPanel Grid.Row="1" Margin="20,15,20,18">
+                            <Grid Margin="0,0,0,12">
+                                <TextBlock Text="RTDS" FontSize="17" FontWeight="Bold"
+                                           Foreground="{StaticResource TextBrush}" HorizontalAlignment="Left" />
+                                <Border Style="{StaticResource Badge}" Background="{Binding RtdsBadgeBg}"
+                                        HorizontalAlignment="Right">
+                                    <TextBlock Text="{Binding RtdsStateLabel}" Style="{StaticResource BadgeText}"
+                                               Foreground="{Binding RtdsBadgeFg}" />
+                                </Border>
+                            </Grid>
+                            <UniformGrid Columns="2">
+                                <Border Style="{StaticResource MetaBorder}">
+                                    <StackPanel>
+                                        <TextBlock Text="Heartbeat" Style="{StaticResource Label}" />
+                                        <TextBlock Text="{Binding RtdsHeartbeat}" Style="{StaticResource ValueText}" />
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource MetaBorder}">
+                                    <StackPanel>
+                                        <TextBlock Text="마지막 갱신" Style="{StaticResource Label}" />
+                                        <TextBlock Text="{Binding RtdsAge}" Style="{StaticResource ValueText}" />
+                                    </StackPanel>
+                                </Border>
+                            </UniformGrid>
+                            <TextBlock Text="트리거·상태 (③DI / ③Coil)" Style="{StaticResource Label}"
+                                       Margin="0,14,0,6" />
+                            <WrapPanel>
+                                <ContentControl Content="{Binding BitSocTrigger}" ContentTemplate="{StaticResource BitPill}" />
+                                <ContentControl Content="{Binding BitSocAck}" ContentTemplate="{StaticResource BitPill}" />
+                                <ContentControl Content="{Binding BitEssEnableSim}" ContentTemplate="{StaticResource BitPill}" />
+                                <ContentControl Content="{Binding BitRtdsRunning}" ContentTemplate="{StaticResource BitPill}" />
+                            </WrapPanel>
+                            <TextBlock Text="RTDS → 매니저 기록 (③HR, 1분 시계열)" Style="{StaticResource Label}"
+                                       Margin="0,14,0,6" />
+                            <UniformGrid Columns="3">
+                                <Border Style="{StaticResource MetaBorder}">
+                                    <StackPanel>
+                                        <TextBlock Text="ESS 전력" Style="{StaticResource Label}" />
+                                        <TextBlock Text="{Binding EssPowerText}" Style="{StaticResource ValueText}" FontSize="13.5" />
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource MetaBorder}">
+                                    <StackPanel>
+                                        <TextBlock Text="SOC" Style="{StaticResource Label}" />
+                                        <TextBlock Text="{Binding EssSocText}" Style="{StaticResource ValueText}" FontSize="13.5" />
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource MetaBorder}">
+                                    <StackPanel>
+                                        <TextBlock Text="PCC 수전" Style="{StaticResource Label}" />
+                                        <TextBlock Text="{Binding PccImportText}" Style="{StaticResource ValueText}" FontSize="13.5" />
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource MetaBorder}">
+                                    <StackPanel>
+                                        <TextBlock Text="PCC 역송" Style="{StaticResource Label}" />
+                                        <TextBlock Text="{Binding PccExportText}" Style="{StaticResource ValueText}" FontSize="13.5" />
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource MetaBorder}">
+                                    <StackPanel>
+                                        <TextBlock Text="상태코드" Style="{StaticResource Label}" />
+                                        <TextBlock Text="{Binding RtdsStatusCodeText}" Style="{StaticResource ValueText}" FontSize="13.5" />
+                                    </StackPanel>
+                                </Border>
+                            </UniformGrid>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- ── Run 제어 ── -->
+            <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                <WrapPanel>
+                    <ComboBox Style="{StaticResource InputCombo}" Width="260" Margin="0,0,10,0"
+                              IsEnabled="{Binding CanSelectScenario}"
+                              SelectedIndex="{Binding ScenarioIndex, Mode=TwoWay}">
+                        <ComboBoxItem Content="Run A — 규칙기반 (시나리오 1)" />
+                        <ComboBoxItem Content="Run B — 최적운영 (시나리오 2)" />
+                    </ComboBox>
+                    <Button Content="▶ Run 시작" Style="{StaticResource BtnPrimary}" Margin="0,0,10,0"
+                            Command="{Binding StartRunCommand}" />
+                    <Button Content="⏸ 일시정지" Style="{StaticResource Btn}" Margin="0,0,10,0"
+                            Command="{Binding PauseCommand}" />
+                    <Button Content="⏵ 재개" Style="{StaticResource Btn}" Margin="0,0,10,0"
+                            Command="{Binding ResumeCommand}" />
+                    <Button Content="⏹ 정지" Style="{StaticResource BtnDanger}" Margin="0,0,10,0"
+                            Command="{Binding StopRunCommand}" />
+                    <Button Content="⏮ 리셋" Style="{StaticResource Btn}" Margin="0,0,10,0"
+                            ToolTip="P6 케이스 전환 — 리셋·시작시각으로 되감기"
+                            Command="{Binding ResetCommand}" />
+                    <TextBlock Text="부하·기상 데이터 미로드 — 데이터 메뉴에서 업로드하세요"
+                               Style="{StaticResource ErrorText}" VerticalAlignment="Center"
+                               Visibility="{Binding DataNotReady, Converter={StaticResource BoolToVis}}" />
+                    <TextBlock Text="{Binding ErrorText}" Style="{StaticResource ErrorText}" VerticalAlignment="Center"
+                               Visibility="{Binding HasError, Converter={StaticResource BoolToVis}}" />
+                </WrapPanel>
+            </Border>
+
+            <!-- ── 시퀀스 로그 (최근) ── -->
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="시퀀스 로그 (최근)" Style="{StaticResource Label}" FontSize="13" Margin="0,0,0,10" />
+                    <TextBlock Text="아직 이벤트가 없습니다 — Run을 시작하면 P1~P6 진행이 기록됩니다."
+                               Style="{StaticResource Muted}"
+                               Visibility="{Binding SeqLogEmpty, Converter={StaticResource BoolToVis}}" />
+                    <ItemsControl ItemsSource="{Binding SeqLog}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,7">
+                                    <TextBlock Text="{Binding VirtualTime}" Style="{StaticResource Muted}"
+                                               FontSize="12.5" Margin="0,0,10,0" />
+                                    <Border Style="{StaticResource PhaseChip}" Margin="0,0,10,0">
+                                        <TextBlock Text="{Binding Phase}" Style="{StaticResource PhaseChipText}" />
+                                    </Border>
+                                    <TextBlock Text="{Binding Message}" FontSize="12.5" TextWrapping="Wrap"
+                                               Foreground="{StaticResource TextBrush}" MaxWidth="900" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

@@ -1,0 +1,39 @@
+# SimulManager 기본 설정 — 개발용 (단독 PC, 에뮬레이터 대상)
+# 운영 배포 시 production.yaml 사용 (docs/DEPLOYMENT.md 참조)
+
+network:
+  bind: 0.0.0.0
+  web_port: 8100
+  # Modbus 서버 모드: single_port(클라이언트 IP로 뱅크 라우팅) | per_link_port(링크별 포트)
+  mode: per_link_port
+  port: 502              # single_port 모드에서 사용
+  link1_port: 7000       # per_link_port 모드 — 링크① (EMS 클라이언트용, 시험 기본 7000)
+  link3_port: 5021       # per_link_port 모드 — 링크③ (RTDS 클라이언트용)
+  ems_ip: 127.0.0.1      # single_port 모드의 뱅크 라우팅 기준
+  rtds_ip: 127.0.0.1
+  unit_id: 1
+
+simulation:
+  start_virtual_time: "2025-07-01T00:00"
+  days: 30
+  accel_seconds_per_15min: 10   # 실 10초 = 가상 15분 (범위 1~900)
+  initial_soc: 50.0             # % (양 Run 동일 주입)
+  soc_max: 90.0
+  soc_min: 10.0
+  charge_limit_kw: 250.0
+  discharge_limit_kw: 250.0
+
+timing:
+  response_timeout_ms: 1000
+  retry_count: 3
+  reconnect_interval_s: [1, 5]
+  heartbeat_period_s: 1
+  alive_timeout_s: 3
+  disconnect_budget_intervals: 14   # 총 구간의 0.5% — 초과 시 Run 무효
+
+scenario:
+  interpolation: hold    # hold(ZOH) | linear — 두 Run 동일 적용
+  data_dir: ../data
+
+historian:
+  db_path: ../data/historian.db

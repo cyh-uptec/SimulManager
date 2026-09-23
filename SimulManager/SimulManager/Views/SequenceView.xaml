@@ -1,0 +1,104 @@
+<UserControl x:Class="SimulManager.Views.SequenceView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </UserControl.Resources>
+
+    <Grid Background="{StaticResource BgBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- topbar -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="28,26,28,14">
+            <TextBlock Text="시퀀스 로그" Style="{StaticResource PageTitle}" VerticalAlignment="Center" />
+            <TextBlock Text="{Binding HeaderText}" Style="{StaticResource Muted}"
+                       VerticalAlignment="Center" Margin="14,0,0,0" />
+        </StackPanel>
+
+        <Border Grid.Row="1" Style="{StaticResource Card}" Margin="28,0,28,26">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0"
+                           Text="기록된 시퀀스가 없습니다 — Run을 시작하면 P1~P6 진행이 기록됩니다."
+                           Style="{StaticResource Muted}" TextAlignment="Center" Padding="0,40"
+                           Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVis}}" />
+
+                <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding Entries}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="#F1F3FA" BorderThickness="0,0,0,1" Padding="4,8">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding VirtualTime}" Style="{StaticResource Muted}"
+                                                       ToolTip="{Binding RealTime}" Margin="0,0,10,0" />
+                                            <Border Style="{StaticResource PhaseChip}" Margin="0,0,10,0">
+                                                <TextBlock Text="{Binding Phase}" Style="{StaticResource PhaseChipText}" />
+                                            </Border>
+                                            <Border CornerRadius="999" Padding="8,1" Margin="0,0,10,0"
+                                                    VerticalAlignment="Center">
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Setter Property="Background" Value="{StaticResource IndigoSoftBrush}" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Source}" Value="ems">
+                                                                <Setter Property="Background" Value="{StaticResource TealSoftBrush}" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding Source}" Value="rtds">
+                                                                <Setter Property="Background" Value="{StaticResource AmberSoftBrush}" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                                <TextBlock Text="{Binding SourceLabel}" FontSize="10.5" FontWeight="Bold">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Foreground" Value="{StaticResource IndigoBrush}" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Source}" Value="ems">
+                                                                    <Setter Property="Foreground" Value="{StaticResource TealTextBrush}" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Source}" Value="rtds">
+                                                                    <Setter Property="Foreground" Value="{StaticResource AmberTextBrush}" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </Border>
+                                            <TextBlock Text="{Binding Message}" FontSize="13" TextWrapping="Wrap"
+                                                       Foreground="{StaticResource TextBrush}" MaxWidth="1000" />
+                                        </StackPanel>
+                                        <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="2,0,0,0"
+                                                Margin="2,3,0,0" Padding="10,0,0,0"
+                                                Visibility="{Binding HasRefs, Converter={StaticResource BoolToVis}}">
+                                            <TextBlock Text="{Binding Refs}" FontSize="11"
+                                                       Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" />
+                                        </Border>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+
+                <!-- pager -->
+                <Grid Grid.Row="1" Margin="0,12,0,0">
+                    <Button Content="← 이전 (최신쪽)" Style="{StaticResource BtnSmall}"
+                            HorizontalAlignment="Left" Command="{Binding PrevPageCommand}" />
+                    <TextBlock Text="{Binding PagerText}" Style="{StaticResource Muted}"
+                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <Button Content="다음 (과거쪽) →" Style="{StaticResource BtnSmall}"
+                            HorizontalAlignment="Right" Command="{Binding NextPageCommand}" />
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>
