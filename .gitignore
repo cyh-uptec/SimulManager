@@ -35,3 +35,6 @@ SimulManager/**/obj/
 
 # ── WPF 포팅판 전체 (DevExpress 상용 의존 — 저장소 미포함) ──
 SimulManager/
+
+# ── 전달용 압축 파일 (저장소 미포함) ──
+*.zip
