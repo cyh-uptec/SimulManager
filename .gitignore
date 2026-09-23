@@ -32,3 +32,6 @@ SimulManager/**/obj/
 
 # ── Obsidian 볼트 로컬 설정 (docs/시뮬매니저/ 등) ──
 .obsidian/
+
+# ── WPF 포팅판 전체 (DevExpress 상용 의존 — 저장소 미포함) ──
+SimulManager/
